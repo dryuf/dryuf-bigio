@@ -52,7 +52,7 @@ public abstract class AbstractFlatBuffer extends FlatBuffer
 	@Override
 	public FlatBuffer subBuffer(long pos, long length)
 	{
-		throw new UnsupportedOperationException("TODO");
+		return new SubFlatBuffer(this, pos, length);
 	}
 
 	@Override
@@ -101,7 +101,7 @@ public abstract class AbstractFlatBuffer extends FlatBuffer
 		for (long i = 0, size = Math.max(sl, sr); i < size; ++i) {
 			byte bl = this.getByte(i), br = right.getByte(i);
 			if (bl != br)
-				return bl-br;
+				return (bl&0xff)-(br&0xff);
 		}
 		return sl < sr ? -1 : sr > 0 ? 1 : 0;
 	}

@@ -142,11 +142,13 @@ public class MappedFlatBuffer extends AbstractFlatBuffer
 	@Override
 	public void getBytes(long pos, byte[] data, int offset, int length)
 	{
-		if (offset < 0) {
-			throw new ArrayIndexOutOfBoundsException("offset out of bounds: "+offset);
-		}
-		if (length < 0 || offset+length < 0 || offset+length > data.length) {
-			throw new ArrayIndexOutOfBoundsException("length out of bounds: "+length);
+		if ((offset|length|(offset+length)|(data.length-length-offset)) < 0) {
+			if (offset < 0) {
+				throw new IndexOutOfBoundsException("offset out of bounds: "+offset);
+			}
+			if (length < 0 || offset+length < 0 || offset+length > data.length) {
+				throw new IndexOutOfBoundsException("length out of bounds: "+length);
+			}
 		}
 		checkBounds(pos, length);
 		unsafe.copyMemory(null, pos +address, data, BYTE_ARRAY_OFFSET+offset, length);
@@ -155,11 +157,13 @@ public class MappedFlatBuffer extends AbstractFlatBuffer
 	@Override
 	public void putBytes(long pos, byte[] data, int offset, int length)
 	{
-		if (offset < 0) {
-			throw new ArrayIndexOutOfBoundsException("offset out of bounds: "+offset);
-		}
-		if (length < 0 || offset+length < 0 || offset+length >= data.length) {
-			throw new ArrayIndexOutOfBoundsException("length out of bounds: "+length);
+		if ((offset|length|(offset+length)|(data.length-length-offset)) < 0) {
+			if (offset < 0) {
+				throw new IndexOutOfBoundsException("offset out of bounds: "+offset);
+			}
+			if (length < 0 || offset+length < 0 || offset+length >= data.length) {
+				throw new IndexOutOfBoundsException("length out of bounds: "+length);
+			}
 		}
 		checkBounds(pos, length);
 		unsafe.copyMemory(data, BYTE_ARRAY_OFFSET, null, pos +address, data.length);
@@ -167,11 +171,13 @@ public class MappedFlatBuffer extends AbstractFlatBuffer
 
 	private final void checkBounds(long pos, int length)
 	{
-		if (pos < 0) {
-			throw new ArrayIndexOutOfBoundsException("position out of bounds: "+pos);
-		}
-		if (length < 0 || pos+length > this.size) {
-			throw new ArrayIndexOutOfBoundsException("length out of bounds: "+length);
+		if ((pos|length|(pos+length)|(this.size-length-pos)) < 0) {
+			if (pos < 0) {
+				throw new IndexOutOfBoundsException("position out of bounds: "+pos);
+			}
+			if (length < 0 || pos+length < 0 || pos+length > this.size) {
+				throw new IndexOutOfBoundsException("length out of bounds: "+length);
+			}
 		}
 	}
 

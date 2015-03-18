@@ -22,52 +22,90 @@ import java.nio.ByteOrder;
 /**
  * Implementation {@link FlatBuffer}, changing the byte order.
  */
-public class SwappedBytesFlatBuffer extends AbstractDelegatingFlatBuffer
+public class AbstractDelegatingFlatBuffer extends AbstractFlatBuffer
 {
-	public SwappedBytesFlatBuffer(FlatBuffer underlying)
+	public AbstractDelegatingFlatBuffer(FlatBuffer underlying)
 	{
-		super(underlying);
+		this.underlying = underlying;
+	}
+
+	@Override
+	public void close()
+	{
+		underlying.close();
 	}
 
 	@Override
 	public ByteOrder getByteOrder()
 	{
-		return underlying.getByteOrder() == ByteOrder.LITTLE_ENDIAN ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+		return underlying.getByteOrder();
+	}
+
+	@Override
+	public long size()
+	{
+		return underlying.size();
+	}
+
+	@Override
+	public byte getByte(long pos)
+	{
+		return underlying.getByte(pos);
 	}
 
 	@Override
 	public short getShort(long pos)
 	{
-		return Short.reverseBytes(underlying.getShort(pos));
+		return underlying.getShort(pos);
 	}
 
 	@Override
 	public int getInt(long pos)
 	{
-		return Integer.reverseBytes(underlying.getInt(pos));
+		return underlying.getInt(pos);
 	}
 
 	@Override
 	public long getLong(long pos)
 	{
-		return Long.reverseBytes(underlying.getLong(pos));
+		return underlying.getLong(pos);
+	}
+
+	@Override
+	public void putByte(long pos, byte val)
+	{
+		underlying.putByte(pos, val);
 	}
 
 	@Override
 	public void putShort(long pos, short val)
 	{
-		underlying.putShort(pos, Short.reverseBytes(val));
+		underlying.putShort(pos, val);
 	}
 
 	@Override
 	public void putInt(long pos, int val)
 	{
-		underlying.putInt(pos, Integer.reverseBytes(val));
+		underlying.putInt(pos, val);
 	}
 
 	@Override
 	public void putLong(long pos, long val)
 	{
-		underlying.putLong(pos, Long.reverseBytes(val));
+		underlying.putLong(pos, val);
 	}
+
+	@Override
+	public void getBytes(long pos, byte[] data, int offset, int length)
+	{
+		underlying.getBytes(pos, data, offset, length);
+	}
+
+	@Override
+	public void putBytes(long pos, byte[] data, int offset, int length)
+	{
+		underlying.putBytes(pos, data, offset, length);
+	}
+
+	protected final FlatBuffer underlying;
 }
