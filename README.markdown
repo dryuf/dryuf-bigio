@@ -18,6 +18,17 @@ This should have been part of original JDK but unfortunately only methods
 reached the FileChannel class, making it difficult to implement virtual
 channels in standardized way.
 
+## Usage
+
+### Release
+
+```
+<dependency>
+	<groupId>net.dryuf</groupId>
+	<artifactId>dryuf-bigio</artifactId>
+	<version>1.0.0</version>
+</dependency>
+```
 
 ## License
 
