@@ -26,7 +26,7 @@
 
 	<groupId>net.dryuf</groupId>
 	<artifactId>dryuf-bigio</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Dryuf BigIo framework</name>
