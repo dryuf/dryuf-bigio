@@ -63,7 +63,7 @@ public class FlatChannels
 	public static class FileChannelFlatChannel implements FlatChannel
 	{
 		@Delegate
-		private FileChannel fileChannel;
+		private final FileChannel fileChannel;
 	}
 
 	@AllArgsConstructor
@@ -87,6 +87,6 @@ public class FlatChannels
 			}
 		}
 
-		private SeekableByteChannel seekableChannel;
+		private final SeekableByteChannel seekableChannel;
 	}
 }

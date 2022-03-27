@@ -30,7 +30,7 @@ public abstract class AbstractFlatBuffer extends FlatBuffer
 	}
 
 	@Override
-	public FlatBuffer withByteOrder(ByteOrder byteOrder)
+	public FlatBuffer order(ByteOrder byteOrder)
 	{
 		if (getByteOrder() == byteOrder)
 			return this;
@@ -64,12 +64,7 @@ public abstract class AbstractFlatBuffer extends FlatBuffer
 	@Override
 	public boolean equalsBytes(long pos, byte[] bytes, int offset, int length)
 	{
-		for (int i = 0; i < length; ++i) {
-			byte bl = this.getByte(pos+i), br = bytes[offset+i];
-			if (bl != br)
-				return false;
-		}
-		return true;
+		return compareBytes(pos, bytes, offset, length) == 0;
 	}
 
 	@Override
@@ -86,12 +81,29 @@ public abstract class AbstractFlatBuffer extends FlatBuffer
 	@Override
 	public boolean equalsByteBuffer(long pos, ByteBuffer buffer)
 	{
+		return compareByteBuffer(pos, buffer) == 0;
+	}
+
+	@Override
+	public int compareBytes(long pos, byte[] bytes, int offset, int length)
+	{
+		for (int i = 0; i < length; ++i) {
+			byte bl = this.getByte(pos+i), br = bytes[offset+i];
+			if (bl != br)
+				return Byte.compare(bl, br);
+		}
+		return 0;
+	}
+
+	@Override
+	public int compareByteBuffer(long pos, ByteBuffer buffer)
+	{
 		for (int i = 0, offset = buffer.position(), length = buffer.remaining(); i < length; ++i) {
 			byte bl = this.getByte(pos+i), br = buffer.get(offset+i);
 			if (bl != br)
-				return false;
+				return Byte.compare(bl, br);
 		}
-		return true;
+		return 0;
 	}
 
 	@Override

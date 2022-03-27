@@ -31,7 +31,7 @@ public class MappedFlatBufferTest
 	{
 		try (
 				FileChannel channel = FileChannel.open(Paths.get("target/test-classes/log4j2.xml"));
-				FlatBuffer buffer = new MappedFlatBuffer(channel, FileChannel.MapMode.READ_ONLY, -1)
+				FlatBuffer buffer = MappedFlatBuffer.from(channel, FileChannel.MapMode.READ_ONLY, 0, -1)
 		) {
 			AssertJUnit.assertEquals((byte)'<', buffer.getByte(0));
 		}

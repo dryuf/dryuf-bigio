@@ -30,7 +30,7 @@ public abstract class FlatBuffer implements AutoCloseable, Comparable<FlatBuffer
 
 	public abstract ByteOrder getByteOrder();
 
-	public abstract FlatBuffer withByteOrder(ByteOrder byteOrder);
+	public abstract FlatBuffer order(ByteOrder byteOrder);
 
 	public abstract long size();
 
@@ -67,6 +67,10 @@ public abstract class FlatBuffer implements AutoCloseable, Comparable<FlatBuffer
 	public abstract boolean equalsBuffer(long pos, FlatBuffer buffer, long offset, long length);
 
 	public abstract boolean equalsByteBuffer(long pos, ByteBuffer buffer);
+
+	public abstract int compareBytes(long pos, byte[] data, int offset, int length);
+
+	public abstract int compareByteBuffer(long pos, ByteBuffer buffer);
 
 	@Override
 	public abstract int compareTo(FlatBuffer right);
