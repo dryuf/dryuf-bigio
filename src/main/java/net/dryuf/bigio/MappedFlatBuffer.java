@@ -19,7 +19,7 @@ package net.dryuf.bigio;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 
-import net.dryuf.bigio.impl.CompositeMappedFlatBuffer;
+import net.dryuf.bigio.file.CompositeMappedFlatBuffer;
 //import net.dryuf.bigio.impl.UnsafeMappedFlatBuffer;
 
 

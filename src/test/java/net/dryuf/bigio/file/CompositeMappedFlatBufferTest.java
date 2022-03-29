@@ -1,4 +1,4 @@
-package net.dryuf.bigio.impl;
+package net.dryuf.bigio.file;
 
 import net.dryuf.bigio.MappedFlatBuffer;
 import org.testng.Assert;

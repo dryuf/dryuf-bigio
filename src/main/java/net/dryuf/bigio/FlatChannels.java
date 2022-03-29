@@ -16,13 +16,12 @@
 
 package net.dryuf.bigio;
 
-import lombok.AllArgsConstructor;
-import lombok.experimental.Delegate;
+import net.dryuf.bigio.file.FileChannelFlatChannel;
+import net.dryuf.bigio.seekable.SeekableChannelFlatChannel;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
+
 
 /**
  * {@link FlatChannel} factory.
@@ -38,9 +37,9 @@ public class FlatChannels
 	 * @return
 	 * 	wrapping {@link FlatChannel}.
 	 */
-	public static FlatChannel from(FileChannel fileChannel)
+	public static FlatChannel fromFile(FileChannel fileChannel)
 	{
-		return new FileChannelFlatChannel(fileChannel);
+		return FileChannelFlatChannel.from(fileChannel);
 	}
 
 	/**
@@ -54,39 +53,9 @@ public class FlatChannels
 	 * @return
 	 * 	wrapping {@link FlatChannel}.
 	 */
-	public static FlatChannel from(SeekableByteChannel seekableByteChannel)
+	public static FlatChannel fromSeekable(SeekableByteChannel seekableByteChannel)
 	{
-		return new SeekableChannelFlatChannel(seekableByteChannel);
+		return SeekableChannelFlatChannel.from(seekableByteChannel);
 	}
 
-	@AllArgsConstructor
-	public static class FileChannelFlatChannel implements FlatChannel
-	{
-		@Delegate
-		private final FileChannel fileChannel;
-	}
-
-	@AllArgsConstructor
-	public static class SeekableChannelFlatChannel implements FlatChannel
-	{
-		@Override
-		public int read(ByteBuffer buffer, long position) throws IOException
-		{
-			synchronized (seekableChannel) {
-				seekableChannel.position(position);
-				return seekableChannel.read(buffer);
-			}
-		}
-
-		@Override
-		public int write(ByteBuffer buffer, long position) throws IOException
-		{
-			synchronized (seekableChannel) {
-				seekableChannel.position(position);
-				return seekableChannel.write(buffer);
-			}
-		}
-
-		private final SeekableByteChannel seekableChannel;
-	}
 }
