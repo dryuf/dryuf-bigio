@@ -20,7 +20,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * Flat Buffer abstract. The class represents stateless (in terms of position abd length) view on sequence of bytes. All
+ * Flat Buffer abstract. The class represents stateless (in terms of position and length) view on sequence of bytes. All
  * positions are represented using long, i.e. the maximum area is 63 bits.
  */
 public abstract class FlatBuffer implements AutoCloseable, Comparable<FlatBuffer>

@@ -17,6 +17,7 @@
 package net.dryuf.bigio;
 
 import net.dryuf.bigio.file.FileChannelFlatChannel;
+import net.dryuf.bigio.memory.BytesFlatChannel;
 import net.dryuf.bigio.seekable.SeekableChannelFlatChannel;
 
 import java.nio.channels.FileChannel;
@@ -30,6 +31,20 @@ public class FlatChannels
 {
 	/**
 	 * Wraps {@link SeekableByteChannel} to {@link FlatChannel}.
+	 *
+	 * @param bytes
+	 * 	underlying byte array.
+	 *
+	 * @return
+	 * 	wrapping {@link FlatChannel}.
+	 */
+	public static FlatChannel fromBytes(byte[] bytes)
+	{
+		return BytesFlatChannel.from(bytes);
+	}
+
+	/**
+	 * Wraps {@link FileChannel} to {@link FlatChannel}.
 	 *
 	 * @param fileChannel
 	 * 	underlying channel.

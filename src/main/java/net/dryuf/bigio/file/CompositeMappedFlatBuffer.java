@@ -40,7 +40,7 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 	{
 		if (isClosed)
 			return;
-			isClosed = true;
+		isClosed = true;
 	}
 
 	@Override

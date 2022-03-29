@@ -33,10 +33,12 @@
 	<url>https://github.com/dryuf/dryuf-bigio</url>
 	<description>
 		Dryuf BigIo is stateless, unlimited IO framework, solving few design problems of original JDK. It mainly
-		provides two things - FlatBuffer with 64-bit address space and being stateless. Additionally, it
-		provides FlatChannel interface and few implementations - providing the arbitrary reads and writes from
-		chosen position. This is implemented only in FileChannel in NIO so this interface makes it easier to
-		provide those stateless reads and writes on virtual channels too.
+		provides three things - FlatBuffer with 64-bit address space and being stateless.
+		Additionally, it provides FlatChannel interface and few implementations - providing the arbitrary reads
+		and writes from chosen position. This is implemented only in FileChannel in NIO so this interface makes
+		it easier to provide those stateless reads and writes on virtual channels too.
+		BigIo also provides committable objects, allowing marking the object as completed or incomplete, so it
+		correctly results into success or exception on receiving side.
 	</description>
 
 	<properties>
@@ -45,6 +47,7 @@
 
 		<maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
 		<maven-source-plugin.version>3.2.1</maven-source-plugin.version>
+		<maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
 		<maven-javadoc-plugin.version>3.3.2</maven-javadoc-plugin.version>
 		<maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
 		<nexus-staging-maven-plugin>1.6.12</nexus-staging-maven-plugin>
@@ -56,7 +59,9 @@
 
 		<jsr305.version>3.0.1</jsr305.version>
 
-		<dryuf-bigio.version>1.0.1</dryuf-bigio.version>
+		<commons-io.version>2.11.0</commons-io.version>
+
+		<dryuf-bigio.version>1.1.0</dryuf-bigio.version>
 	</properties>
 
 	<licenses>
@@ -90,6 +95,28 @@
 						<arg>-Xlint:all</arg>
 					</compilerArgs>
 				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>${maven-assembly-plugin.version}</version>
+				<executions>
+					<execution>
+						<id>make-test-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/test/assembly/assembly.xml</descriptor>
+							</descriptors>
+							<finalName>dryuf-bigio</finalName>
+							<appendAssemblyId>true</appendAssemblyId>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 
 			<plugin>
@@ -195,6 +222,13 @@
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
 			<version>${testng.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>${commons-io.version}</version>
 			<scope>test</scope>
 		</dependency>
 

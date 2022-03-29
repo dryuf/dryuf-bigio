@@ -147,7 +147,7 @@ public class LinedInputMultiStream implements MultiStream
 				}
 			}
 
-			private long myLineNumber = lineNumber;
+			private final long myLineNumber = lineNumber;
 		};
 	}
 

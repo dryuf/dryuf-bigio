@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class SeekableFlatChannelTest
 {
-	public static final int COUNT = 1_000_000;
+	public static final int COUNT = 100_000;
 
 	FlatChannel channel;
 
@@ -27,6 +27,7 @@ public class SeekableFlatChannelTest
 	public void setup() throws IOException
 	{
 		Path file = Files.createTempFile(SeekableFlatChannelTest.class.getName(), ".txt");
+		file.toFile().deleteOnExit();
 		Files.write(file, "hello\nworld\n".getBytes(StandardCharsets.UTF_8));
 		channel = FlatChannels.fromSeekable(FileChannel.open(file));
 	}

@@ -1,4 +1,4 @@
-package net.dryuf.bigio.file;
+package net.dryuf.bigio.memory;
 
 import net.dryuf.bigio.FlatChannel;
 import net.dryuf.bigio.FlatChannels;
@@ -16,7 +16,7 @@ import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 
 
-public class FileChannelFlatChannelTest
+public class BytesFlatChannelTest
 {
 	public static final int COUNT = 100_000;
 
@@ -25,10 +25,8 @@ public class FileChannelFlatChannelTest
 	@BeforeClass
 	public void setup() throws IOException
 	{
-		Path file = Files.createTempFile(FileChannelFlatChannelTest.class.getName(), ".txt");
-		file.toFile().deleteOnExit();
-		Files.write(file, "hello\nworld\n".getBytes(StandardCharsets.UTF_8));
-		channel = FlatChannels.fromFile(FileChannel.open(file));
+		byte[] bytes = "hello\nworld\n".getBytes(StandardCharsets.UTF_8);
+		channel = FlatChannels.fromBytes(bytes);
 	}
 
 	@Test

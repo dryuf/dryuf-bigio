@@ -27,6 +27,15 @@ import java.io.InputStream;
  */
 public interface MultiStream extends Closeable
 {
+	/**
+	 * Return next stream from underlying source.
+	 *
+	 * @return
+	 * 	next stream or null if no further available.
+	 *
+	 * @throws IOException
+	 * 	if an IO error occurs.
+	 */
 	@Nullable
 	InputStream nextStream() throws IOException;
 }
