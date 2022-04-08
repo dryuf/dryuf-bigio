@@ -19,16 +19,16 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 		if (len < 0) {
 			len = channel.size();
 		}
-		if (len > (long) Integer.MAX_VALUE*ONE_SIZE) {
+		if (len > (long) Integer.MAX_VALUE* BLOCK_SIZE) {
 			throw new IllegalArgumentException("Too big mapping, max supported size is 2^62-2^30, provided: 0x"+Long.toHexString(len));
 		}
-		buffers = new ByteBuffer[(int)((len-1)/ONE_SIZE+1)];
+		buffers = new ByteBuffer[(int)((len-1)/ BLOCK_SIZE +1)];
 		this.size = len;
 		try {
 			for (int i = 0; i < buffers.length-1; ++i) {
-				buffers[i] = channel.map(mode, offset+i*(long) ONE_SIZE, ONE_SIZE);
+				buffers[i] = channel.map(mode, offset+i*(long) BLOCK_SIZE, BLOCK_SIZE);
 			}
-			buffers[buffers.length-1] = channel.map(mode, offset+(buffers.length-1)*(long) ONE_SIZE, size-((buffers.length)-1)*(long) ONE_SIZE);
+			buffers[buffers.length-1] = channel.map(mode, offset+(buffers.length-1)*(long) BLOCK_SIZE, size-((buffers.length)-1)*(long) BLOCK_SIZE);
 		}
 		catch (IOException e) {
 			throw new UncheckedIOException(e);
@@ -68,7 +68,7 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 	@Override
 	public byte getByte(long pos)
 	{
-		checkShortBounds(pos, 1);
+		checkSafeLengthBounds(pos, 1);
 		ByteBuffer buf0 = findBuffer(pos);
 		return buf0.get(localPos(pos));
 	}
@@ -76,9 +76,9 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 	@Override
 	public short getShort(long pos)
 	{
-		checkShortBounds(pos, 2);
+		checkSafeLengthBounds(pos, 2);
 		ByteBuffer buf0 = findBuffer(pos);
-		if (((pos+1)&ONE_MASK) >= 1) {
+		if (((pos+1)&(BLOCK_MASK&~1)) != 0) {
 			return buf0.getShort(localPos(pos));
 		}
 		else {
@@ -92,8 +92,8 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 	@Override
 	public int getInt(long pos)
 	{
-		checkShortBounds(pos, 4);
-		if (((pos+3)&ONE_MASK) >= 3) {
+		checkSafeLengthBounds(pos, 4);
+		if (((pos+3)&(BLOCK_MASK&~3)) != 0) {
 			ByteBuffer buf0 = findBuffer(pos);
 			return buf0.getInt(localPos(pos));
 		}
@@ -108,8 +108,8 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 	@Override
 	public long getLong(long pos)
 	{
-		checkShortBounds(pos, 8);
-		if (((pos+3)&ONE_MASK) >= 7) {
+		checkSafeLengthBounds(pos, 8);
+		if (((pos+7)&(BLOCK_MASK&~7)) != 0) {
 			ByteBuffer buf0 = findBuffer(pos);
 			return buf0.getLong(localPos(pos));
 		}
@@ -133,19 +133,19 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 			}
 		}
 		ByteBuffer buf0 = findBuffer(pos);
-		if (length == 0 || ((pos+length-1)&ONE_MASK) >= length-1) {
+		if (length == 0 || ((pos+length-1)& BLOCK_MASK) >= length-1) {
 			getFromPosition(buf0, localPos(pos), data, offset, length);
 		}
 		else {
 			ByteBuffer bufLast = findBuffer(pos+length-1);
-			int i = ONE_SIZE-localPos(pos);
+			int i = BLOCK_SIZE -localPos(pos);
 			getFromPosition(buf0, localPos(pos), data, offset, i);
 			for (;;) {
 				ByteBuffer bufMid = findBuffer(pos+i);
 				if (bufMid == bufLast)
 					break;
-				getFromPosition(bufMid, 0, data, offset+i, ONE_SIZE);
-				i += ONE_SIZE;
+				getFromPosition(bufMid, 0, data, offset+i, BLOCK_SIZE);
+				i += BLOCK_SIZE;
 			}
 			getFromPosition(bufLast, 0, data, offset+i, length-i);
 		}
@@ -154,7 +154,7 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 	@Override
 	public void putByte(long pos, byte val)
 	{
-		checkShortBounds(pos, 1);
+		checkSafeLengthBounds(pos, 1);
 		ByteBuffer buf0 = findBuffer(pos);
 		buf0.put(localPos(pos), val);
 	}
@@ -162,9 +162,9 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 	@Override
 	public void putShort(long pos, short val)
 	{
-		checkShortBounds(pos, 2);
+		checkSafeLengthBounds(pos, 2);
 		ByteBuffer buf0 = findBuffer(pos);
-		if (((pos+1)&ONE_MASK) >= 1) {
+		if (((pos+1)&(BLOCK_MASK&~1)) != 0) {
 			buf0.putShort(localPos(pos), val);
 		}
 		else {
@@ -177,13 +177,13 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 	@Override
 	public void putInt(long pos, int val)
 	{
-		checkShortBounds(pos, 4);
-		if (((pos+3)&ONE_MASK) >= 3) {
+		checkSafeLengthBounds(pos, 4);
+		if (((pos+3)&(BLOCK_MASK&~3)) != 0) {
 			ByteBuffer buf0 = findBuffer(pos);
 			buf0.putInt(localPos(pos), val);
 		}
 		else {
-			putShort(pos, (short) (isLittleEndian ? val : val>>>16));
+			putShort(pos, (short) (isLittleEndian ? val : (val>>>16)));
 			putShort(pos+2, (short) (isLittleEndian ? val>>>16 : val));
 		}
 	}
@@ -191,13 +191,13 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 	@Override
 	public void putLong(long pos, long val)
 	{
-		checkShortBounds(pos, 8);
-		if (((pos+7)&ONE_MASK) >= 7) {
+		checkSafeLengthBounds(pos, 8);
+		if (((pos+7)&(BLOCK_MASK&~7)) != 0) {
 			ByteBuffer buf0 = findBuffer(pos);
 			buf0.putLong(localPos(pos), val);
 		}
 		else {
-			putInt(pos, (int) (isLittleEndian ? val : val>>>32));
+			putInt(pos, (int) (isLittleEndian ? val : (val>>>32)));
 			putInt(pos+4, (int) (isLittleEndian ? val>>>32 : val));
 		}
 	}
@@ -215,19 +215,19 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 		}
 		checkBounds(pos, length);
 		ByteBuffer buf0 = findBuffer(pos);
-		if (length == 0 || ((pos+length-1)&ONE_MASK) >= length-1) {
+		if (length == 0 || ((pos+length-1)& BLOCK_MASK) >= length-1) {
 			putToPosition(buf0, localPos(pos), data, offset, length);
 		}
 		else {
 			ByteBuffer bufLast = findBuffer(pos+length-1);
-			int i = ONE_SIZE-localPos(pos);
+			int i = BLOCK_SIZE -localPos(pos);
 			putToPosition(buf0, localPos(pos), data, offset, i);
 			for (;;) {
 				ByteBuffer bufMid = findBuffer(pos+i);
 				if (bufMid == bufLast)
 					break;
-				putToPosition(bufMid, 0, data, offset+i, ONE_SIZE);
-				i += ONE_SIZE;
+				putToPosition(bufMid, 0, data, offset+i, BLOCK_SIZE);
+				i += BLOCK_SIZE;
 			}
 			putToPosition(bufLast, 0, data, offset+i, length-i);
 		}
@@ -237,21 +237,21 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 	public boolean equalsBytes(long pos, byte[] data, int offset, int length)
 	{
 		ByteBuffer buf0 = findBuffer(pos);
-		if (length == 0 || ((pos+length-1)&ONE_MASK) >= length-1) {
+		if (length == 0 || ((pos+length-1)& BLOCK_MASK) >= length-1) {
 			return equalsAtPosition(buf0, localPos(pos), data, offset, length);
 		}
 		else {
 			ByteBuffer bufLast = findBuffer(pos+length-1);
-			int i = ONE_SIZE-localPos(pos);
+			int i = BLOCK_SIZE -localPos(pos);
 			if (!equalsAtPosition(buf0, localPos(pos), data, offset, i))
 				return false;
 			for (;;) {
 				ByteBuffer bufMid = findBuffer(pos+i);
 				if (bufMid == bufLast)
 					break;
-				if (!equalsAtPosition(bufMid, 0, data, offset+i, ONE_SIZE))
+				if (!equalsAtPosition(bufMid, 0, data, offset+i, BLOCK_SIZE))
 					return false;
-				i += ONE_SIZE;
+				i += BLOCK_SIZE;
 			}
 			return equalsAtPosition(bufLast, 0, data, offset+i, length-i);
 		}
@@ -261,12 +261,12 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 	public int compareBytes(long pos, byte[] data, int offset, int length)
 	{
 		ByteBuffer buf0 = findBuffer(pos);
-		if (length == 0 || ((pos+length-1)&ONE_MASK) >= length-1) {
+		if (length == 0 || ((pos+length-1)& BLOCK_MASK) >= length-1) {
 			return compareAtPosition(buf0, localPos(pos), data, offset, length);
 		}
 		else {
 			ByteBuffer bufLast = findBuffer(pos+length-1);
-			int i = ONE_SIZE-localPos(pos);
+			int i = BLOCK_SIZE -localPos(pos);
 			int r;
 			if ((r = compareAtPosition(buf0, localPos(pos), data, offset, i)) != 0)
 				return r;
@@ -274,15 +274,15 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 				ByteBuffer bufMid = findBuffer(pos+i);
 				if (bufMid == bufLast)
 					break;
-				if ((r = compareAtPosition(bufMid, 0, data, offset+i, ONE_SIZE)) != 0)
+				if ((r = compareAtPosition(bufMid, 0, data, offset+i, BLOCK_SIZE)) != 0)
 					return r;
-				i += ONE_SIZE;
+				i += BLOCK_SIZE;
 			}
 			return compareAtPosition(bufLast, 0, data, offset+i, length-i);
 		}
 	}
 
-	private void checkShortBounds(long pos, int length)
+	private void checkSafeLengthBounds(long pos, int length)
 	{
 		if ((pos|(this.size-length-pos)) < 0) {
 			if (pos < 0) {
@@ -308,12 +308,12 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 
 	private ByteBuffer findBuffer(long pos)
 	{
-		return buffers[(int)(pos/ONE_SIZE)];
+		return buffers[(int)(pos/ BLOCK_SIZE)];
 	}
 
 	private static int localPos(long pos)
 	{
-		return (int) pos & ONE_MASK;
+		return (int) pos & BLOCK_MASK;
 	}
 
 	private static void getFromPosition(ByteBuffer buf, int pos, byte[] data, int offset, int length)
@@ -346,8 +346,8 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 		return dup.compareTo(ByteBuffer.wrap(data, offset, length));
 	}
 
-	static final int ONE_SIZE = 1024*1024*1024;
-	static final int ONE_MASK = ONE_SIZE-1;
+	static final int BLOCK_SIZE = 1024*1024*1024;
+	static final int BLOCK_MASK = BLOCK_SIZE -1;
 
 	private final long size;
 

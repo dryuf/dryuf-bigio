@@ -31,13 +31,13 @@ public class CompositeMappedFlatBufferTest
 				pattern[i] = (byte) i;
 			}
 			channel.write(ByteBuffer.wrap(pattern));
-			channel.write(ByteBuffer.wrap(pattern), CompositeMappedFlatBuffer.ONE_SIZE-256);
-			channel.write(ByteBuffer.wrap(pattern), CompositeMappedFlatBuffer.ONE_SIZE);
-			channel.write(ByteBuffer.wrap(pattern), 2L*CompositeMappedFlatBuffer.ONE_SIZE-256);
-			channel.write(ByteBuffer.wrap(pattern), 2L*CompositeMappedFlatBuffer.ONE_SIZE);
-			channel.write(ByteBuffer.wrap(pattern), 3L*CompositeMappedFlatBuffer.ONE_SIZE-256);
-			channel.write(ByteBuffer.wrap(pattern), 3L*CompositeMappedFlatBuffer.ONE_SIZE);
-			channel.write(ByteBuffer.wrap(pattern), 4L*CompositeMappedFlatBuffer.ONE_SIZE);
+			channel.write(ByteBuffer.wrap(pattern), CompositeMappedFlatBuffer.BLOCK_SIZE -256);
+			channel.write(ByteBuffer.wrap(pattern), CompositeMappedFlatBuffer.BLOCK_SIZE);
+			channel.write(ByteBuffer.wrap(pattern), 2L*CompositeMappedFlatBuffer.BLOCK_SIZE -256);
+			channel.write(ByteBuffer.wrap(pattern), 2L*CompositeMappedFlatBuffer.BLOCK_SIZE);
+			channel.write(ByteBuffer.wrap(pattern), 3L*CompositeMappedFlatBuffer.BLOCK_SIZE -256);
+			channel.write(ByteBuffer.wrap(pattern), 3L*CompositeMappedFlatBuffer.BLOCK_SIZE);
+			channel.write(ByteBuffer.wrap(pattern), 4L*CompositeMappedFlatBuffer.BLOCK_SIZE);
 		}
 
 		buffer = new CompositeMappedFlatBuffer(channel, FileChannel.MapMode.READ_WRITE, 0, -1);
@@ -106,26 +106,26 @@ public class CompositeMappedFlatBufferTest
 	@Test
 	public void testReadIntCross()
 	{
-		int result = buffer.getInt(CompositeMappedFlatBuffer.ONE_SIZE-1);
+		int result = buffer.getInt(CompositeMappedFlatBuffer.BLOCK_SIZE -1);
 		Assert.assertEquals(result, (int) 0xff000102);
 	}
 
 	@Test
 	public void testReadLongCross()
 	{
-		long result = buffer.getLong(CompositeMappedFlatBuffer.ONE_SIZE-1);
+		long result = buffer.getLong(CompositeMappedFlatBuffer.BLOCK_SIZE -1);
 		Assert.assertEquals(result, 0xff00010203040506L);
 	}
 
 	@Test
 	public void testReadBytesCross()
 	{
-		byte[] result = new byte[CompositeMappedFlatBuffer.ONE_SIZE+2];
-		buffer.getBytes(CompositeMappedFlatBuffer.ONE_SIZE-1, result);
+		byte[] result = new byte[CompositeMappedFlatBuffer.BLOCK_SIZE +2];
+		buffer.getBytes(CompositeMappedFlatBuffer.BLOCK_SIZE -1, result);
 		Assert.assertEquals(result[0], (byte) 0xff);
 		Assert.assertEquals(result[1], (byte) 0);
-		Assert.assertEquals(result[CompositeMappedFlatBuffer.ONE_SIZE+0], (byte) 0xff);
-		Assert.assertEquals(result[CompositeMappedFlatBuffer.ONE_SIZE+1], (byte) 0);
+		Assert.assertEquals(result[CompositeMappedFlatBuffer.BLOCK_SIZE +0], (byte) 0xff);
+		Assert.assertEquals(result[CompositeMappedFlatBuffer.BLOCK_SIZE +1], (byte) 0);
 	}
 
 	@Test
@@ -167,28 +167,28 @@ public class CompositeMappedFlatBufferTest
 	@Test
 	public void testLeReadByteCross()
 	{
-		byte result = leBuffer.getByte(CompositeMappedFlatBuffer.ONE_SIZE-1);
+		byte result = leBuffer.getByte(CompositeMappedFlatBuffer.BLOCK_SIZE -1);
 		Assert.assertEquals(result, (byte) 0xff);
 	}
 
 	@Test
 	public void testLeReadShortCross()
 	{
-		short result = leBuffer.getShort(CompositeMappedFlatBuffer.ONE_SIZE-1);
+		short result = leBuffer.getShort(CompositeMappedFlatBuffer.BLOCK_SIZE -1);
 		Assert.assertEquals(result, (short) 0x00ff);
 	}
 
 	@Test
 	public void testLeReadIntCross()
 	{
-		int result = leBuffer.getInt(CompositeMappedFlatBuffer.ONE_SIZE-1);
+		int result = leBuffer.getInt(CompositeMappedFlatBuffer.BLOCK_SIZE -1);
 		Assert.assertEquals(result, (int) 0x020100ff);
 	}
 
 	@Test
 	public void testLeReadLongCross()
 	{
-		long result = leBuffer.getLong(CompositeMappedFlatBuffer.ONE_SIZE-1);
+		long result = leBuffer.getLong(CompositeMappedFlatBuffer.BLOCK_SIZE -1);
 		Assert.assertEquals(result, 0x06050403020100ffL);
 	}
 
@@ -238,36 +238,36 @@ public class CompositeMappedFlatBufferTest
 	@Test
 	public void testWriteByteCross()
 	{
-		buffer.putByte(3L*CompositeMappedFlatBuffer.ONE_SIZE-1, (byte) 4);
-		assertBytes(3L*CompositeMappedFlatBuffer.ONE_SIZE-1, new byte[]{ 4 });
+		buffer.putByte(3L*CompositeMappedFlatBuffer.BLOCK_SIZE -1, (byte) 4);
+		assertBytes(3L*CompositeMappedFlatBuffer.BLOCK_SIZE -1, new byte[]{ 4 });
 	}
 
 	@Test
 	public void testWriteShortCross()
 	{
-		buffer.putShort(3L*CompositeMappedFlatBuffer.ONE_SIZE-1, (short) 0x506);
-		assertBytes(3L*CompositeMappedFlatBuffer.ONE_SIZE-1, new byte[]{ 5, 6 });
+		buffer.putShort(3L*CompositeMappedFlatBuffer.BLOCK_SIZE -1, (short) 0x506);
+		assertBytes(3L*CompositeMappedFlatBuffer.BLOCK_SIZE -1, new byte[]{ 5, 6 });
 	}
 
 	@Test
 	public void testWriteIntCross()
 	{
-		buffer.putInt(3L*CompositeMappedFlatBuffer.ONE_SIZE-1, 0x708090a);
-		assertBytes(3L*CompositeMappedFlatBuffer.ONE_SIZE-1, new byte[]{ 7, 8, 9, 10 });
+		buffer.putInt(3L*CompositeMappedFlatBuffer.BLOCK_SIZE -1, 0x708090a);
+		assertBytes(3L*CompositeMappedFlatBuffer.BLOCK_SIZE -1, new byte[]{ 7, 8, 9, 10 });
 	}
 
 	@Test
 	public void testWriteLongCross()
 	{
-		buffer.putLong(3L*CompositeMappedFlatBuffer.ONE_SIZE-1, 0x708090a0b0c0d0eL);
-		assertBytes(3L*CompositeMappedFlatBuffer.ONE_SIZE-1, new byte[]{ 7, 8, 9, 10, 11, 12, 13, 14 });
+		buffer.putLong(3L*CompositeMappedFlatBuffer.BLOCK_SIZE -1, 0x708090a0b0c0d0eL);
+		assertBytes(3L*CompositeMappedFlatBuffer.BLOCK_SIZE -1, new byte[]{ 7, 8, 9, 10, 11, 12, 13, 14 });
 	}
 
 	@Test
 	public void testWriteBytesCross()
 	{
-		buffer.putBytes(3L*CompositeMappedFlatBuffer.ONE_SIZE-1, new byte[]{ 1, 2, 3, 4, 5 });
-		assertBytes(3L*CompositeMappedFlatBuffer.ONE_SIZE-1, new byte[]{ 1, 2, 3, 4, 5 });
+		buffer.putBytes(3L*CompositeMappedFlatBuffer.BLOCK_SIZE -1, new byte[]{ 1, 2, 3, 4, 5 });
+		assertBytes(3L*CompositeMappedFlatBuffer.BLOCK_SIZE -1, new byte[]{ 1, 2, 3, 4, 5 });
 	}
 
 	@Test
@@ -308,34 +308,34 @@ public class CompositeMappedFlatBufferTest
 	@Test
 	public void testLeWriteBytesCross()
 	{
-		byte[] bytes = new byte[CompositeMappedFlatBuffer.ONE_SIZE+2];
+		byte[] bytes = new byte[CompositeMappedFlatBuffer.BLOCK_SIZE +2];
 		bytes[0] = 1;
 		bytes[1] = 2;
-		bytes[CompositeMappedFlatBuffer.ONE_SIZE-2] = 3;
-		bytes[CompositeMappedFlatBuffer.ONE_SIZE-1] = 4;
-		leBuffer.putBytes(3L*CompositeMappedFlatBuffer.ONE_SIZE-1, bytes);
-		assertBytes(3L*CompositeMappedFlatBuffer.ONE_SIZE-1, bytes);
+		bytes[CompositeMappedFlatBuffer.BLOCK_SIZE -2] = 3;
+		bytes[CompositeMappedFlatBuffer.BLOCK_SIZE -1] = 4;
+		leBuffer.putBytes(3L*CompositeMappedFlatBuffer.BLOCK_SIZE -1, bytes);
+		assertBytes(3L*CompositeMappedFlatBuffer.BLOCK_SIZE -1, bytes);
 	}
 
 	@Test
 	public void testLeWriteShortCross()
 	{
-		leBuffer.putShort(3L*CompositeMappedFlatBuffer.ONE_SIZE-1, (short) 0x506);
-		assertBytes(3L*CompositeMappedFlatBuffer.ONE_SIZE-1, new byte[]{ 6, 5 });
+		leBuffer.putShort(3L*CompositeMappedFlatBuffer.BLOCK_SIZE -1, (short) 0x506);
+		assertBytes(3L*CompositeMappedFlatBuffer.BLOCK_SIZE -1, new byte[]{ 6, 5 });
 	}
 
 	@Test
 	public void testLeWriteIntCross()
 	{
-		leBuffer.putInt(3L*CompositeMappedFlatBuffer.ONE_SIZE-1, 0x708090a);
-		assertBytes(3L*CompositeMappedFlatBuffer.ONE_SIZE-1, new byte[]{ 10, 9, 8, 7 });
+		leBuffer.putInt(3L*CompositeMappedFlatBuffer.BLOCK_SIZE -1, 0x708090a);
+		assertBytes(3L*CompositeMappedFlatBuffer.BLOCK_SIZE -1, new byte[]{ 10, 9, 8, 7 });
 	}
 
 	@Test
 	public void testLeWriteLongCross()
 	{
-		leBuffer.putLong(3L*CompositeMappedFlatBuffer.ONE_SIZE-1, 0x708090a0b0c0d0eL);
-		assertBytes(3L*CompositeMappedFlatBuffer.ONE_SIZE-1, new byte[]{ 14, 13, 12, 11, 10, 9, 8, 7 });
+		leBuffer.putLong(3L*CompositeMappedFlatBuffer.BLOCK_SIZE -1, 0x708090a0b0c0d0eL);
+		assertBytes(3L*CompositeMappedFlatBuffer.BLOCK_SIZE -1, new byte[]{ 14, 13, 12, 11, 10, 9, 8, 7 });
 	}
 
 	@Test
@@ -349,7 +349,7 @@ public class CompositeMappedFlatBufferTest
 	public void testEqualsBytesCross()
 	{
 		byte[] expected = new byte[]{ -1, 0, 1, 2 };
-		Assert.assertTrue(buffer.equalsBytes(CompositeMappedFlatBuffer.ONE_SIZE-1, expected, 0, 4));
+		Assert.assertTrue(buffer.equalsBytes(CompositeMappedFlatBuffer.BLOCK_SIZE -1, expected, 0, 4));
 	}
 
 	@Test
@@ -367,11 +367,11 @@ public class CompositeMappedFlatBufferTest
 	public void testCompareBytesCross()
 	{
 		byte[] expectedNeg = new byte[]{ -1, 1, 0, 0 };
-		Assert.assertTrue(buffer.compareBytes(CompositeMappedFlatBuffer.ONE_SIZE-1, expectedNeg, 0, 4) < 0);
+		Assert.assertTrue(buffer.compareBytes(CompositeMappedFlatBuffer.BLOCK_SIZE -1, expectedNeg, 0, 4) < 0);
 		byte[] expectedZero = new byte[]{ -1, 0, 1, 2 };
-		Assert.assertTrue(buffer.compareBytes(CompositeMappedFlatBuffer.ONE_SIZE-1, expectedZero, 0, 4) == 0);
+		Assert.assertTrue(buffer.compareBytes(CompositeMappedFlatBuffer.BLOCK_SIZE -1, expectedZero, 0, 4) == 0);
 		byte[] expectedPos = new byte[]{ -1, -1, 1, 2 };
-		Assert.assertTrue(buffer.compareBytes(CompositeMappedFlatBuffer.ONE_SIZE-1, expectedPos, 0, 4) > 0);
+		Assert.assertTrue(buffer.compareBytes(CompositeMappedFlatBuffer.BLOCK_SIZE -1, expectedPos, 0, 4) > 0);
 	}
 
 	private void assertBytes(long pos, byte[] expected)
