@@ -13,15 +13,16 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+
 public class SocketCommittableOutputStreamTest
 {
 	ExecutorService executor = Executors.newCachedThreadPool();
 
-	@Test
+	@Test(timeOut = 10_000L)
 	public void testNoCommit() throws IOException
 	{
 		ServerSocketChannel listener = ServerSocketChannel.open();
-		listener.bind(new InetSocketAddress(0));
+		listener.bind(new InetSocketAddress("localhost", 0));
 		CompletableFuture<Void> serverFuture = CompletableFuture.runAsync(() -> {
 			try (SocketChannel server = listener.accept();
 			     SocketCommittableOutputStream output = new SocketCommittableOutputStream(server)) {
@@ -44,11 +45,11 @@ public class SocketCommittableOutputStreamTest
 	}
 
 
-	@Test
+	@Test(timeOut = 10_000L)
 	public void testCommit() throws IOException
 	{
 		ServerSocketChannel listener = ServerSocketChannel.open();
-		listener.bind(new InetSocketAddress(0));
+		listener.bind(new InetSocketAddress("localhost", 0));
 		CompletableFuture<Void> serverFuture = CompletableFuture.runAsync(() -> {
 			try (SocketChannel server = listener.accept();
 			     SocketCommittableOutputStream output = new SocketCommittableOutputStream(server)) {
@@ -66,14 +67,14 @@ public class SocketCommittableOutputStreamTest
 		serverFuture.join();
 	}
 
-	@Test(timeOut = 10000L)
+	@Test(timeOut = 10_000L)
 	public void testNonBlocking() throws IOException, InterruptedException
 	{
 		int count = 100_000;
 		byte[] payload = new byte[10_000];
 		Arrays.fill(payload, (byte) 'C');
 		ServerSocketChannel listener = ServerSocketChannel.open();
-		listener.bind(new InetSocketAddress(0));
+		listener.bind(new InetSocketAddress("localhost", 0));
 		CompletableFuture<Void> serverFuture = CompletableFuture.runAsync(() -> {
 			try (SocketChannel server = listener.accept();
 			     SocketCommittableOutputStream output = new SocketCommittableOutputStream(server)) {
