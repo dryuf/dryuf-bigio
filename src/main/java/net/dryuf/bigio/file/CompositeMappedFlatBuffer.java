@@ -3,7 +3,6 @@ package net.dryuf.bigio.file;
 import net.dryuf.bigio.MappedFlatBuffer;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
@@ -24,15 +23,10 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 		}
 		buffers = new ByteBuffer[(int)((len-1)/ BLOCK_SIZE +1)];
 		this.size = len;
-		try {
-			for (int i = 0; i < buffers.length-1; ++i) {
-				buffers[i] = channel.map(mode, offset+i*(long) BLOCK_SIZE, BLOCK_SIZE);
-			}
-			buffers[buffers.length-1] = channel.map(mode, offset+(buffers.length-1)*(long) BLOCK_SIZE, size-((buffers.length)-1)*(long) BLOCK_SIZE);
+		for (int i = 0; i < buffers.length-1; ++i) {
+			buffers[i] = channel.map(mode, offset+i*(long) BLOCK_SIZE, BLOCK_SIZE);
 		}
-		catch (IOException e) {
-			throw new UncheckedIOException(e);
-		}
+		buffers[buffers.length-1] = channel.map(mode, offset+(buffers.length-1)*(long) BLOCK_SIZE, size-((buffers.length)-1)*(long) BLOCK_SIZE);
 	}
 
 	@Override
@@ -52,7 +46,7 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 	@Override
 	public ByteOrder getByteOrder()
 	{
-		return ByteOrder.BIG_ENDIAN;
+		return isBigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
 	}
 
 	@Override
@@ -61,7 +55,7 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 		for (ByteBuffer b: buffers) {
 			b.order(order);
 		}
-		isLittleEndian = order.equals(ByteOrder.LITTLE_ENDIAN);
+		isBigEndian = order.equals(ByteOrder.BIG_ENDIAN);
 		return this;
 	}
 
@@ -83,7 +77,7 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 		}
 		else {
 			ByteBuffer buf1 = findBuffer(pos+1);
-			return (short) (isLittleEndian ?
+			return (short) (!isBigEndian ?
 					(buf0.get(localPos(pos))&0xff) | buf1.get(localPos(pos+1))<<8 :
 					buf0.get(localPos(pos))<<8 | buf1.get(localPos(pos+1))&0xff);
 		}
@@ -98,7 +92,7 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 			return buf0.getInt(localPos(pos));
 		}
 		else {
-			return (isLittleEndian ?
+			return (!isBigEndian ?
 					(getShort(pos)&0xffff | getShort(pos+2)<<16) :
 					(getShort(pos)<<16 | getShort(pos+2)&0xffff));
 		}
@@ -114,7 +108,7 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 			return buf0.getLong(localPos(pos));
 		}
 		else {
-			return (isLittleEndian ?
+			return (!isBigEndian ?
 					(getInt(pos)&0xffffffffL | (long) getInt(pos+4)<<32) :
 					((long) getInt(pos)<<32 | getInt(pos+4)&0xffffffffL));
 		}
@@ -169,8 +163,8 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 		}
 		else {
 			ByteBuffer buf1 = findBuffer(pos+1);
-			buf0.put(localPos(pos), (byte) (isLittleEndian ? val : val>>>8));
-			buf1.put(localPos(pos+1), (byte) (isLittleEndian ? val>>>8 : val));
+			buf0.put(localPos(pos), (byte) (!isBigEndian ? val : val>>>8));
+			buf1.put(localPos(pos+1), (byte) (!isBigEndian ? val>>>8 : val));
 		}
 	}
 
@@ -183,8 +177,8 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 			buf0.putInt(localPos(pos), val);
 		}
 		else {
-			putShort(pos, (short) (isLittleEndian ? val : (val>>>16)));
-			putShort(pos+2, (short) (isLittleEndian ? val>>>16 : val));
+			putShort(pos, (short) (!isBigEndian ? val : (val>>>16)));
+			putShort(pos+2, (short) (!isBigEndian ? val>>>16 : val));
 		}
 	}
 
@@ -197,8 +191,8 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 			buf0.putLong(localPos(pos), val);
 		}
 		else {
-			putInt(pos, (int) (isLittleEndian ? val : (val>>>32)));
-			putInt(pos+4, (int) (isLittleEndian ? val>>>32 : val));
+			putInt(pos, (int) (!isBigEndian ? val : (val>>>32)));
+			putInt(pos+4, (int) (!isBigEndian ? val>>>32 : val));
 		}
 	}
 
@@ -351,7 +345,7 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 
 	private final long size;
 
-	private boolean isLittleEndian = false;
+	private boolean isBigEndian = true;
 
 	private ByteBuffer buffers[];
 

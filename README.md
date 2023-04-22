@@ -14,6 +14,7 @@ FlatBuffer buffer = MappedFlatBuffer.from(channel, FileChannel.MapMode.READ_ONLY
 byte byteAt5G = buffer.getByte(5_000_000_000);
 ```
 
+
 ## FlatChannel
 
 The interface FlatChannel provides reads and writes methods from arbitrary
@@ -30,6 +31,7 @@ channel = FlatChannels.fromBytes(new byte[1_000_000]);
 CompletableFuture.runAsync(() -> channel.read(buffer1, 0));
 CompletableFuture.runAsync(() -> channel.read(buffer2, 100));
 ```
+
 
 ## Committable, CommittableOutputStream
 
@@ -55,6 +57,19 @@ try (CommittableOutputStream output = new SocketCommittableOutputStream(channel)
 ```
 
 
+## FilenameVersionComparators
+
+Filename comparators, depending on path, version, etc.
+
+```java
+// this returns -1 despite both path and filename are greater - but the version in file is lower:
+FilenameVersionComparators.FILENAME_ONLY_COMPARATOR.compare("c/d/hello-1.txt", "a/b/bye-2.txt");
+
+// this returns -1 despite both filename version are greater - but the version in path is lower:
+FilenameVersionComparators.PATH_COMPARATOR.compare("abc-1/hello-20-1", "xyz-2/world-20");
+```
+
+
 ## Usage
 
 ### Release
@@ -63,7 +78,7 @@ try (CommittableOutputStream output = new SocketCommittableOutputStream(channel)
 <dependency>
 	<groupId>net.dryuf</groupId>
 	<artifactId>dryuf-bigio</artifactId>
-	<version>1.1.0</version>
+	<version>1.1.1</version>
 </dependency>
 ```
 
@@ -76,6 +91,6 @@ The code is released under version 2.0 of the [Apache License][].
 
 Zbynek Vyskovsky
 
-Feel free to contact me at kvr000@gmail.com and http://github.com/kvr000
+Feel free to contact me at kvr000@gmail.com and http://github.com/kvr000/ and http://github.com/dryuf/ and https://www.linkedin.com/in/zbynek-vyskovsky/
 
 [Apache License]: http://www.apache.org/licenses/LICENSE-2.0

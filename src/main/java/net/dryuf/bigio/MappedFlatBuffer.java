@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 
 import net.dryuf.bigio.file.CompositeMappedFlatBuffer;
-//import net.dryuf.bigio.impl.UnsafeMappedFlatBuffer;
+import net.dryuf.bigio.file.SmallMappedFlatBuffer;
 
 
 /**
@@ -31,6 +31,9 @@ public abstract class MappedFlatBuffer extends AbstractFlatBuffer
 {
 	public static MappedFlatBuffer from(FileChannel channel, FileChannel.MapMode mode, long offset, long length) throws IOException
 	{
-		return new CompositeMappedFlatBuffer(channel, mode, offset, length);
+		long realLength = length < 0 ? channel.size() : length;
+		return realLength > Integer.MAX_VALUE ?
+			new CompositeMappedFlatBuffer(channel, mode, offset, length) :
+			new SmallMappedFlatBuffer(channel, mode, offset, length);
 	}
 }

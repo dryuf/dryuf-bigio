@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
 /**
  * Channel providing stateless reading and writing from arbitrary position.
  *
- * <p/>This interface should have been part of JDK and FileChannel should have been one of the implementing classes,
+ * <p>This interface should have been part of JDK and FileChannel should have been one of the implementing classes,
  * otherwise it's very difficult to use concurrent access on virtual channels.
  */
 public interface FlatChannel
