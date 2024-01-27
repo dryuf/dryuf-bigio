@@ -58,6 +58,19 @@ public abstract class FlatBuffer implements AutoCloseable, Comparable<FlatBuffer
 
 	public abstract void putBytes(long pos, byte[] data, int offset, int length);
 
+	/**
+	 * Gets a ByteBuffer at given position and length.  The ByteBuffer may or may not be zero-copy of original
+	 * storage depending on implementation.  It must NOT be used for modifications.
+	 *
+	 * @param pos
+	 *      position in this buffer
+	 * @param length
+	 *      length of returned ByteBuffer
+	 *
+	 * @return
+	 *      ByteBuffer representing the bytes at given position and length.
+	 *
+	 */
 	public abstract ByteBuffer getByteBuffer(long pos, long length);
 
 	public abstract FlatBuffer subBuffer(long pos, long length);

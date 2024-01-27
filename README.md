@@ -11,7 +11,7 @@ Java Nio ByteBuffer except two important things:
 ```java
 FileChannel channel = FileChannel.open(Paths.get(myHugeFile));
 FlatBuffer buffer = MappedFlatBuffer.from(channel, FileChannel.MapMode.READ_ONLY, 0, -1);
-byte byteAt5G = buffer.getByte(5_000_000_000);
+byte byteAt5G = buffer.getByte(5_000_000_000L);
 ```
 
 
