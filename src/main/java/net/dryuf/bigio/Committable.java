@@ -1,3 +1,21 @@
+/*
+ * dryuf-bigio - Java framework for handling IO operations.
+ *
+ * Copyright 2015-2024 Zbynek Vyskovsky mailto:kvr000@gmail.com http://github.com/kvr000/ https://github.com/dryuf/dryuf-bigio/ https://www.linkedin.com/in/zbynek-vyskovsky/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package net.dryuf.bigio;
 
 
@@ -13,7 +31,9 @@ public interface Committable extends AutoCloseable
 {
 	/**
 	 * Marks the object as committable upon call to {@link #close()}.  Without this, any call to {@link #close()}
-	 * should only close the underlying connection but not attempt to send the data.
+	 * should only close the underlying connection but not attempt to send the data (e.g. should hard reset and
+	 * close the channel instead of completing the operation gracefully).
+	 *
 	 * The method can be called repeatedly with different settings, for example, when writing is in the middle and
 	 * the stream is unsafe to commit at that time.
 	 *

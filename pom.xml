@@ -26,7 +26,7 @@
 
 	<groupId>net.dryuf</groupId>
 	<artifactId>dryuf-bigio</artifactId>
-	<version>1.1.1</version>
+	<version>1.2.0</version>
 	<packaging>jar</packaging>
 
 	<name>Dryuf BigIo framework</name>
@@ -42,7 +42,7 @@
 	</description>
 
 	<properties>
-		<javac.version>1.8</javac.version>
+		<javac.version>11</javac.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
@@ -58,8 +58,6 @@
 		<testng.version>6.11</testng.version>
 
 		<jsr305.version>3.0.1</jsr305.version>
-
-		<commons-io.version>2.11.0</commons-io.version>
 	</properties>
 
 	<licenses>
@@ -220,13 +218,6 @@
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
 			<version>${testng.version}</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>${commons-io.version}</version>
 			<scope>test</scope>
 		</dependency>
 

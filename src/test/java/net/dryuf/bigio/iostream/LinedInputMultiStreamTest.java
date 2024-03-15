@@ -16,15 +16,16 @@
 
 package net.dryuf.bigio.iostream;
 
-import org.apache.commons.io.IOUtils;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.function.Supplier;
 
 
@@ -47,7 +48,7 @@ public class LinedInputMultiStreamTest
 		byte[] input = "hello\n".getBytes(StandardCharsets.UTF_8);
 		try (MultiStream multiStream = new LinedInputMultiStream(new ByteArrayInputStream(input))) {
 			try (InputStream stream = multiStream.nextStream()) {
-				AssertJUnit.assertEquals("hello", IOUtils.toString(stream, StandardCharsets.UTF_8));
+				AssertJUnit.assertEquals("hello", toString(stream, StandardCharsets.UTF_8));
 			}
 			AssertJUnit.assertNull(multiStream.nextStream());
 		}
@@ -59,7 +60,7 @@ public class LinedInputMultiStreamTest
 		byte[] input = "hello".getBytes(StandardCharsets.UTF_8);
 		try (MultiStream multiStream = new LinedInputMultiStream(new ByteArrayInputStream(input))) {
 			try (InputStream stream = multiStream.nextStream()) {
-				AssertJUnit.assertEquals("hello", IOUtils.toString(stream, StandardCharsets.UTF_8));
+				AssertJUnit.assertEquals("hello", toString(stream, StandardCharsets.UTF_8));
 			}
 			AssertJUnit.assertNull(multiStream.nextStream());
 		}
@@ -71,10 +72,10 @@ public class LinedInputMultiStreamTest
 		byte[] input = "hello\nworld\n".getBytes(StandardCharsets.UTF_8);
 		try (MultiStream multiStream = new LinedInputMultiStream(new ByteArrayInputStream(input))) {
 			try (InputStream stream = multiStream.nextStream()) {
-				AssertJUnit.assertEquals("hello", IOUtils.toString(stream, StandardCharsets.UTF_8));
+				AssertJUnit.assertEquals("hello", toString(stream, StandardCharsets.UTF_8));
 			}
 			try (InputStream stream = multiStream.nextStream()) {
-				AssertJUnit.assertEquals("world", IOUtils.toString(stream, StandardCharsets.UTF_8));
+				AssertJUnit.assertEquals("world", toString(stream, StandardCharsets.UTF_8));
 			}
 			AssertJUnit.assertNull(multiStream.nextStream());
 		}
@@ -86,10 +87,10 @@ public class LinedInputMultiStreamTest
 		byte[] input = "hello\nworld".getBytes(StandardCharsets.UTF_8);
 		try (MultiStream multiStream = new LinedInputMultiStream(new ByteArrayInputStream(input))) {
 			try (InputStream stream = multiStream.nextStream()) {
-				AssertJUnit.assertEquals("hello", IOUtils.toString(stream, StandardCharsets.UTF_8));
+				AssertJUnit.assertEquals("hello", toString(stream, StandardCharsets.UTF_8));
 			}
 			try (InputStream stream = multiStream.nextStream()) {
-				AssertJUnit.assertEquals("world", IOUtils.toString(stream, StandardCharsets.UTF_8));
+				AssertJUnit.assertEquals("world", toString(stream, StandardCharsets.UTF_8));
 			}
 			AssertJUnit.assertNull(multiStream.nextStream());
 		}
@@ -105,7 +106,7 @@ public class LinedInputMultiStreamTest
 				actual[0] = (byte)stream.read();
 			}
 			try (InputStream stream = multiStream.nextStream()) {
-				AssertJUnit.assertEquals("world", IOUtils.toString(stream, StandardCharsets.UTF_8));
+				AssertJUnit.assertEquals("world", toString(stream, StandardCharsets.UTF_8));
 			}
 			AssertJUnit.assertNull(multiStream.nextStream());
 		}
@@ -117,7 +118,7 @@ public class LinedInputMultiStreamTest
 		byte[] input = (BIG_MESSAGE+"\n").getBytes(StandardCharsets.UTF_8);
 		try (MultiStream multiStream = new LinedInputMultiStream(new ByteArrayInputStream(input))) {
 			try (InputStream stream = multiStream.nextStream()) {
-				AssertJUnit.assertEquals(BIG_MESSAGE, IOUtils.toString(stream, StandardCharsets.UTF_8));
+				AssertJUnit.assertEquals(BIG_MESSAGE, toString(stream, StandardCharsets.UTF_8));
 			}
 			AssertJUnit.assertNull(multiStream.nextStream());
 		}
@@ -129,7 +130,7 @@ public class LinedInputMultiStreamTest
 		byte[] input = BIG_MESSAGE.getBytes(StandardCharsets.UTF_8);
 		try (MultiStream multiStream = new LinedInputMultiStream(new ByteArrayInputStream(input))) {
 			try (InputStream stream = multiStream.nextStream()) {
-				AssertJUnit.assertEquals(BIG_MESSAGE, IOUtils.toString(stream, StandardCharsets.UTF_8));
+				AssertJUnit.assertEquals(BIG_MESSAGE, toString(stream, StandardCharsets.UTF_8));
 			}
 			AssertJUnit.assertNull(multiStream.nextStream());
 		}
@@ -141,10 +142,10 @@ public class LinedInputMultiStreamTest
 		byte[] input = (BIG_MESSAGE+"\n"+BIG_MESSAGE).getBytes(StandardCharsets.UTF_8);
 		try (MultiStream multiStream = new LinedInputMultiStream(new ByteArrayInputStream(input))) {
 			try (InputStream stream = multiStream.nextStream()) {
-				AssertJUnit.assertEquals(BIG_MESSAGE, IOUtils.toString(stream, StandardCharsets.UTF_8));
+				AssertJUnit.assertEquals(BIG_MESSAGE, toString(stream, StandardCharsets.UTF_8));
 			}
 			try (InputStream stream = multiStream.nextStream()) {
-				AssertJUnit.assertEquals(BIG_MESSAGE, IOUtils.toString(stream, StandardCharsets.UTF_8));
+				AssertJUnit.assertEquals(BIG_MESSAGE, toString(stream, StandardCharsets.UTF_8));
 			}
 			AssertJUnit.assertNull(multiStream.nextStream());
 		}
@@ -158,11 +159,11 @@ public class LinedInputMultiStreamTest
 			try (InputStream stream = multiStream.nextStream()) {
 				byte[] actual = new byte[BIG_MESSAGE.length()];
 				actual[0] = (byte)stream.read();
-				IOUtils.readFully(stream, actual, 1, actual.length-1);
+				stream.readNBytes(actual, 1, actual.length-1);
 				AssertJUnit.assertEquals(BIG_MESSAGE, new String(actual, StandardCharsets.UTF_8));
 			}
 			try (InputStream stream = multiStream.nextStream()) {
-				AssertJUnit.assertEquals(BIG_MESSAGE, IOUtils.toString(stream, StandardCharsets.UTF_8));
+				AssertJUnit.assertEquals(BIG_MESSAGE, toString(stream, StandardCharsets.UTF_8));
 			}
 			AssertJUnit.assertNull(multiStream.nextStream());
 		}
@@ -178,9 +179,16 @@ public class LinedInputMultiStreamTest
 				actual[0] = (byte)stream.read();
 			}
 			try (InputStream stream = multiStream.nextStream()) {
-				AssertJUnit.assertEquals(BIG_MESSAGE, IOUtils.toString(stream, StandardCharsets.UTF_8));
+				AssertJUnit.assertEquals(BIG_MESSAGE, toString(stream, StandardCharsets.UTF_8));
 			}
 			AssertJUnit.assertNull(multiStream.nextStream());
+		}
+	}
+
+	private String toString(InputStream stream, Charset charset) throws IOException
+	{
+		try (Reader reader = new InputStreamReader(stream, charset)) {
+			return new String(stream.readAllBytes(), charset);
 		}
 	}
 }

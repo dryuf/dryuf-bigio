@@ -1,5 +1,7 @@
 /*
- * Copyright 2015 Zbynek Vyskovsky mailto:kvr000@gmail.com http://kvr.znj.cz/ http://github.com/kvr000/
+ * dryuf-bigio - Java framework for handling IO operations.
+ *
+ * Copyright 2015-2024 Zbynek Vyskovsky mailto:kvr000@gmail.com http://github.com/kvr000/ https://github.com/dryuf/dryuf-bigio/ https://www.linkedin.com/in/zbynek-vyskovsky/
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +20,7 @@ package net.dryuf.bigio;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+
 
 /**
  * Flat Buffer abstract. The class represents stateless (in terms of position and length) view on sequence of bytes. All

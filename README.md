@@ -78,7 +78,7 @@ FilenameVersionComparators.PATH_COMPARATOR.compare("abc-1/hello-20-1", "xyz-2/wo
 <dependency>
 	<groupId>net.dryuf</groupId>
 	<artifactId>dryuf-bigio</artifactId>
-	<version>1.1.1</version>
+	<version>1.2.0</version>
 </dependency>
 ```
 
@@ -89,8 +89,8 @@ The code is released under version 2.0 of the [Apache License][].
 
 ## Stay in Touch
 
-Zbynek Vyskovsky
+Author: Zbynek Vyskovsky
 
-Feel free to contact me at kvr000@gmail.com and http://github.com/kvr000/ and http://github.com/dryuf/ and https://www.linkedin.com/in/zbynek-vyskovsky/
+Feel free to contact me at kvr000@gmail.com and http://github.com/kvr000/ and http://github.com/dryuf/dryuf-bigio/ and https://www.linkedin.com/in/zbynek-vyskovsky/
 
 [Apache License]: http://www.apache.org/licenses/LICENSE-2.0
