@@ -58,12 +58,6 @@ public abstract class AbstractFlatBuffer extends FlatBuffer
 	}
 
 	@Override
-	public ByteBuffer getByteBuffer(long pos, long length)
-	{
-		throw new UnsupportedOperationException("TODO");
-	}
-
-	@Override
 	public boolean equalsBytes(long pos, byte[] bytes, int offset, int length)
 	{
 		return compareBytes(pos, bytes, offset, length) == 0;

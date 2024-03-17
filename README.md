@@ -1,5 +1,8 @@
 # Dryuf BigIo
 
+Java IO framework, managing limitless 64-bit IO, lock-free access, comittable IO, etc.
+
+
 ## FlatBuffer
 
 The project implements stateless buffers, called FlatBuffer. This is similar to
@@ -78,7 +81,7 @@ FilenameVersionComparators.PATH_COMPARATOR.compare("abc-1/hello-20-1", "xyz-2/wo
 <dependency>
 	<groupId>net.dryuf</groupId>
 	<artifactId>dryuf-bigio</artifactId>
-	<version>1.2.0</version>
+	<version>1.2.1</version>
 </dependency>
 ```
 

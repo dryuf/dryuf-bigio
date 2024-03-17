@@ -102,6 +102,13 @@ public class SmallMappedFlatBuffer extends MappedFlatBuffer
 	}
 
 	@Override
+	public ByteBuffer getByteBuffer(long pos, long length)
+	{
+		return buffer.slice(Math.toIntExact(pos), Math.toIntExact(length))
+			.order(buffer.order());
+	}
+
+	@Override
 	public void putByte(long pos, byte val)
 	{
 		buffer.put(localPos(pos), val);

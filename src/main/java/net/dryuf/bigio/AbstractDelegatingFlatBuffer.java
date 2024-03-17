@@ -18,6 +18,7 @@
 
 package net.dryuf.bigio;
 
+import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 
@@ -101,6 +102,12 @@ public class AbstractDelegatingFlatBuffer extends AbstractFlatBuffer
 	public void getBytes(long pos, byte[] data, int offset, int length)
 	{
 		underlying.getBytes(pos, data, offset, length);
+	}
+
+	@Override
+	public ByteBuffer getByteBuffer(long pos, long length)
+	{
+		return underlying.getByteBuffer(pos, length);
 	}
 
 	@Override

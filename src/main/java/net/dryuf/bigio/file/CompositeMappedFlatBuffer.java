@@ -164,6 +164,22 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 	}
 
 	@Override
+	public ByteBuffer getByteBuffer(long pos, long length)
+	{
+		checkBounds(pos, Math.toIntExact(length));
+		ByteBuffer buf0 = findBuffer(pos);
+		if (length == 0 || ((pos+length-1)&BLOCK_MASK) >= length-1) {
+			return buf0.slice(((int) pos & BLOCK_MASK), (int) length)
+					.order(getByteOrder());
+		}
+		else {
+			byte[] bytes = new byte[(int) length];
+			getBytes(pos, bytes);
+			return ByteBuffer.wrap(bytes);
+		}
+	}
+
+	@Override
 	public void putByte(long pos, byte val)
 	{
 		checkSafeLengthBounds(pos, 1);

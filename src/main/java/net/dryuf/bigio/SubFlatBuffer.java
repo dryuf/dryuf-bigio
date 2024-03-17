@@ -19,14 +19,20 @@
 package net.dryuf.bigio;
 
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
+
 /**
  * Implementation {@link FlatBuffer}, changing the byte order.
  */
-public class SubFlatBuffer extends AbstractDelegatingFlatBuffer
+public class SubFlatBuffer extends AbstractFlatBuffer
 {
+	private final FlatBuffer underlying;
+
 	public SubFlatBuffer(FlatBuffer underlying, long offset, long length)
 	{
-		super(underlying);
+		this.underlying = underlying;
 		this.offset = offset;
 		this.length = length;
 	}
@@ -34,6 +40,12 @@ public class SubFlatBuffer extends AbstractDelegatingFlatBuffer
 	@Override
 	public void close()
 	{
+	}
+
+	@Override
+	public ByteOrder getByteOrder()
+	{
+		return underlying.getByteOrder();
 	}
 
 	@Override
@@ -103,6 +115,13 @@ public class SubFlatBuffer extends AbstractDelegatingFlatBuffer
 	{
 		checkBounds(pos, length);
 		underlying.getBytes(offset+pos, data, offset, length);
+	}
+
+	@Override
+	public ByteBuffer getByteBuffer(long pos, long length)
+	{
+		checkBounds(pos, length);
+		return underlying.getByteBuffer(offset+pos, length);
 	}
 
 	@Override
