@@ -49,6 +49,15 @@ public class SubFlatBuffer extends AbstractFlatBuffer
 	}
 
 	@Override
+	public FlatBuffer order(ByteOrder byteOrder)
+	{
+		if (byteOrder != underlying.getByteOrder()) {
+			throw new IllegalArgumentException("Cannot change byteOrder of SubFlatBuffer");
+		}
+		return this;
+	}
+
+	@Override
 	public long size()
 	{
 		return this.length;
@@ -118,10 +127,24 @@ public class SubFlatBuffer extends AbstractFlatBuffer
 	}
 
 	@Override
-	public ByteBuffer getByteBuffer(long pos, long length)
+	public void getByteBuffer(long pos, ByteBuffer buffer)
+	{
+		checkBounds(pos, buffer.remaining());
+		underlying.getByteBuffer(offset+pos, buffer);
+	}
+
+	@Override
+	public ByteBuffer subByteBuffer(long pos, long length)
 	{
 		checkBounds(pos, length);
-		return underlying.getByteBuffer(offset+pos, length);
+		return underlying.subByteBuffer(offset+pos, length);
+	}
+
+	@Override
+	public void putByteBuffer(long pos, ByteBuffer buffer)
+	{
+		checkBounds(pos, buffer.remaining());
+		underlying.putByteBuffer(offset+pos, buffer);
 	}
 
 	@Override

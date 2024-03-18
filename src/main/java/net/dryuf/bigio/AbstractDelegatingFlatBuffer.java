@@ -39,6 +39,12 @@ public class AbstractDelegatingFlatBuffer extends AbstractFlatBuffer
 	}
 
 	@Override
+	public FlatBuffer order(ByteOrder order)
+	{
+		return underlying.order(order);
+	}
+
+	@Override
 	public ByteOrder getByteOrder()
 	{
 		return underlying.getByteOrder();
@@ -105,9 +111,21 @@ public class AbstractDelegatingFlatBuffer extends AbstractFlatBuffer
 	}
 
 	@Override
-	public ByteBuffer getByteBuffer(long pos, long length)
+	public void getByteBuffer(long pos, ByteBuffer buffer)
 	{
-		return underlying.getByteBuffer(pos, length);
+		underlying.getByteBuffer(pos, buffer);
+	}
+
+	@Override
+	public ByteBuffer subByteBuffer(long pos, long length)
+	{
+		return underlying.subByteBuffer(pos, length);
+	}
+
+	@Override
+	public void putByteBuffer(long pos, ByteBuffer buffer)
+	{
+		underlying.putByteBuffer(pos, buffer);
 	}
 
 	@Override

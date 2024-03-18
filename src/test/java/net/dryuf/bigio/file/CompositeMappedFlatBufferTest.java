@@ -167,7 +167,7 @@ public class CompositeMappedFlatBufferTest
 	@Test
 	public void testLeReadByteBuffer()
 	{
-		ByteBuffer result = leBuffer.getByteBuffer(7, 8);
+		ByteBuffer result = leBuffer.subByteBuffer(7, 8);
 		Assert.assertEquals(ByteBuffer.wrap(new byte[]{ 7, 8, 9, 10, 11, 12, 13, 14 }), result);
 	}
 
@@ -210,7 +210,7 @@ public class CompositeMappedFlatBufferTest
 	@Test
 	public void testLeReadByteBufferCross()
 	{
-		ByteBuffer result = leBuffer.getByteBuffer(1024*1024*1024-1, 8);
+		ByteBuffer result = leBuffer.subByteBuffer(1024*1024*1024-1, 8);
 		Assert.assertEquals(ByteBuffer.wrap(new byte[]{ -1, 0, 1, 2, 3, 4, 5, 6 }), result);
 	}
 

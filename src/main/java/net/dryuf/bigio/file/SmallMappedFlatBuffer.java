@@ -43,6 +43,13 @@ public class SmallMappedFlatBuffer extends MappedFlatBuffer
 		buffer = channel.map(mode, offset, size);
 	}
 
+	public SmallMappedFlatBuffer(ByteBuffer buffer) throws IOException
+	{
+		this.size = buffer.limit();
+		this.buffer = buffer;
+		this.isBigEndian = this.buffer.order() == ByteOrder.BIG_ENDIAN;
+	}
+
 	@Override
 	public synchronized void close()
 	{
@@ -102,10 +109,29 @@ public class SmallMappedFlatBuffer extends MappedFlatBuffer
 	}
 
 	@Override
-	public ByteBuffer getByteBuffer(long pos, long length)
+	public void getByteBuffer(long pos, ByteBuffer bufferRead)
+	{
+		if (bufferRead.hasArray()) {
+			getBytes(pos, bufferRead.array(), bufferRead.arrayOffset() + bufferRead.position(), bufferRead.limit() - bufferRead.position());
+		}
+		else {
+			for (int r = bufferRead.limit() - bufferRead.position(); r > 0; --r) {
+				bufferRead.put(getByte(pos + r));
+			}
+		}
+	}
+
+	@Override
+	public ByteBuffer subByteBuffer(long pos, long length)
 	{
 		return buffer.slice(Math.toIntExact(pos), Math.toIntExact(length))
 			.order(buffer.order());
+	}
+
+	@Override
+	public void putByteBuffer(long pos, ByteBuffer buffer)
+	{
+		buffer.put(Math.toIntExact(pos), buffer, buffer.position(), buffer.remaining());
 	}
 
 	@Override
@@ -160,16 +186,12 @@ public class SmallMappedFlatBuffer extends MappedFlatBuffer
 
 	private static void getFromPosition(ByteBuffer buf, int pos, byte[] data, int offset, int length)
 	{
-		ByteBuffer dup = buf.duplicate();
-		dup.position(pos);
-		dup.get(data, offset, length);
+		buf.get(pos, data, offset, length);
 	}
 
 	private static void putToPosition(ByteBuffer buf, int pos, byte[] data, int offset, int length)
 	{
-		ByteBuffer dup = buf.duplicate();
-		dup.position(pos);
-		dup.put(data, offset, length);
+		buf.put(pos, data, offset, length);
 	}
 
 	private static boolean equalsAtPosition(ByteBuffer buf, int pos, byte[] data, int offset, int length)

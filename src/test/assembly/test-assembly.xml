@@ -13,6 +13,9 @@
 			<useProjectArtifact>true</useProjectArtifact>
 			<unpack>true</unpack>
 			<scope>test</scope>
+			<excludes>
+				<exclude>org.projectlombok:lombok</exclude>
+			</excludes>
 		</dependencySet>
 	</dependencySets>
 	<fileSets>

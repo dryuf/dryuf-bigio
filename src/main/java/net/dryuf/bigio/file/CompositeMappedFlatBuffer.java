@@ -45,6 +45,7 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 			buffers[i] = channel.map(mode, offset+i*(long) BLOCK_SIZE, BLOCK_SIZE);
 		}
 		buffers[buffers.length-1] = channel.map(mode, offset+(buffers.length-1)*(long) BLOCK_SIZE, size-((buffers.length)-1)*(long) BLOCK_SIZE);
+		isBigEndian = buffers.length > 0 ? buffers[0].order() == ByteOrder.BIG_ENDIAN : true;
 	}
 
 	@Override
@@ -164,7 +165,20 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 	}
 
 	@Override
-	public ByteBuffer getByteBuffer(long pos, long length)
+	public void getByteBuffer(long pos, ByteBuffer bufferRead)
+	{
+		if (bufferRead.hasArray()) {
+			getBytes(pos, bufferRead.array(), bufferRead.arrayOffset() + bufferRead.position(), bufferRead.limit() - bufferRead.position());
+		}
+		else {
+			for (int r = bufferRead.limit() - bufferRead.position(); r > 0; --r) {
+				bufferRead.put(getByte(pos + r));
+			}
+		}
+	}
+
+	@Override
+	public ByteBuffer subByteBuffer(long pos, long length)
 	{
 		checkBounds(pos, Math.toIntExact(length));
 		ByteBuffer buf0 = findBuffer(pos);
@@ -175,8 +189,26 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 		else {
 			byte[] bytes = new byte[(int) length];
 			getBytes(pos, bytes);
-			return ByteBuffer.wrap(bytes);
+			return ByteBuffer.wrap(bytes)
+				.order(getByteOrder());
 		}
+	}
+
+	@Override
+	public void putByteBuffer(long pos, ByteBuffer buffer)
+	{
+		int length = buffer.remaining();
+		checkBounds(pos, length);
+		ByteBuffer buf0 = findBuffer(pos);
+		if (length == 0 || ((pos+length-1)&BLOCK_MASK) >= length-1) {
+			buf0.put(((int) pos & BLOCK_MASK), buffer, buffer.position(), length);
+		}
+		else {
+			buf0.put((int) pos & BLOCK_MASK, buffer, buffer.position(), BLOCK_SIZE - ((int) pos & BLOCK_MASK));
+			ByteBuffer buf1 = findBuffer((pos | BLOCK_MASK) + 1);
+			buf1.put(0, buffer, buffer.position() + (BLOCK_SIZE - ((int) pos & BLOCK_MASK)), length - (BLOCK_SIZE - ((int) pos & BLOCK_MASK)));
+		}
+		buffer.position(buffer.position() + length);
 	}
 
 	@Override
@@ -346,16 +378,12 @@ public class CompositeMappedFlatBuffer extends MappedFlatBuffer
 
 	private static void getFromPosition(ByteBuffer buf, int pos, byte[] data, int offset, int length)
 	{
-		ByteBuffer dup = buf.duplicate();
-		dup.position(pos);
-		dup.get(data, offset, length);
+		buf.get(pos, data, offset, length);
 	}
 
 	private static void putToPosition(ByteBuffer buf, int pos, byte[] data, int offset, int length)
 	{
-		ByteBuffer dup = buf.duplicate();
-		dup.position(pos);
-		dup.put(data, offset, length);
+		buf.put(pos, data, offset, length);
 	}
 
 	private static boolean equalsAtPosition(ByteBuffer buf, int pos, byte[] data, int offset, int length)
