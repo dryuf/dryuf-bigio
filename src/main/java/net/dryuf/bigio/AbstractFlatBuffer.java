@@ -24,19 +24,11 @@ import java.nio.ByteOrder;
 /**
  * Partial implementation of {@link FlatBuffer}.
  */
-public abstract class AbstractFlatBuffer extends FlatBuffer
+public abstract class AbstractFlatBuffer implements FlatBuffer
 {
 	@Override
 	public void close()
 	{
-	}
-
-	@Override
-	public FlatBuffer order(ByteOrder byteOrder)
-	{
-		if (getByteOrder() == byteOrder)
-			return this;
-		return new SwappedBytesFlatBuffer(this);
 	}
 
 	@Override

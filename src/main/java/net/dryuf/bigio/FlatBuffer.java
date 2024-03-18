@@ -26,40 +26,64 @@ import java.nio.ByteOrder;
  * Flat Buffer abstract. The class represents stateless (in terms of position and length) view on sequence of bytes. All
  * positions are represented using long, i.e. the maximum area is 63 bits.
  */
-public abstract class FlatBuffer implements AutoCloseable, Comparable<FlatBuffer>
+public interface FlatBuffer extends AutoCloseable, Comparable<FlatBuffer>
 {
 	@Override
-	public abstract void close();
+	public void close();
 
-	public abstract ByteOrder getByteOrder();
+	public ByteOrder getByteOrder();
 
-	public abstract FlatBuffer order(ByteOrder byteOrder);
+	public FlatBuffer order(ByteOrder byteOrder);
 
-	public abstract long size();
+	public long size();
 
-	public abstract byte getByte(long pos);
+	public byte getByte(long pos);
 
-	public abstract short getShort(long pos);
+	public short getShort(long pos);
 
-	public abstract int getInt(long pos);
+	public int getInt(long pos);
 
-	public abstract long getLong(long pos);
+	public long getLong(long pos);
 
-	public abstract void getBytes(long pos, byte[] data);
+	public void getBytes(long pos, byte[] data);
 
-	public abstract void getBytes(long pos, byte[] data, int offset, int length);
+	public void getBytes(long pos, byte[] data, int offset, int length);
 
-	public abstract void putByte(long pos, byte val);
+	/**
+	 * Gets a ByteBuffer at given position and length.  The ByteBuffer may or may not be zero-copy of original
+	 * storage depending on implementation.  It must NOT be used for modifications.
+	 *
+	 * @param pos
+	 *      position in this buffer
+	 *
+	 * @return
+	 *      ByteBuffer representing the bytes at given position and length.
+	 */
+	public void getByteBuffer(long pos, ByteBuffer buffer);
 
-	public abstract void putShort(long pos, short val);
+	public void putByte(long pos, byte val);
 
-	public abstract void putInt(long pos, int val);
+	public void putShort(long pos, short val);
 
-	public abstract void putLong(long pos, long val);
+	public void putInt(long pos, int val);
 
-	public abstract void putBytes(long pos, byte[] data);
+	public void putLong(long pos, long val);
 
-	public abstract void putBytes(long pos, byte[] data, int offset, int length);
+	public void putBytes(long pos, byte[] data);
+
+	public void putBytes(long pos, byte[] data, int offset, int length);
+
+	/**
+	 * Writes a ByteBuffer at given position and length.
+	 *
+	 * @param pos
+	 *      position in this buffer
+	 * @param buffer
+	 *      buffer to write
+	 */
+	public void putByteBuffer(long pos, ByteBuffer buffer);
+
+	public FlatBuffer subBuffer(long pos, long length);
 
 	/**
 	 * Gets a ByteBuffer at given position and length.  The ByteBuffer may or may not be zero-copy of original
@@ -72,21 +96,18 @@ public abstract class FlatBuffer implements AutoCloseable, Comparable<FlatBuffer
 	 *
 	 * @return
 	 *      ByteBuffer representing the bytes at given position and length.
-	 *
 	 */
-	public abstract ByteBuffer getByteBuffer(long pos, long length);
+	public ByteBuffer subByteBuffer(long pos, long length);
 
-	public abstract FlatBuffer subBuffer(long pos, long length);
+	public boolean equalsBytes(long pos, byte[] data, int offset, int length);
 
-	public abstract boolean equalsBytes(long pos, byte[] data, int offset, int length);
+	public boolean equalsBuffer(long pos, FlatBuffer buffer, long offset, long length);
 
-	public abstract boolean equalsBuffer(long pos, FlatBuffer buffer, long offset, long length);
+	public boolean equalsByteBuffer(long pos, ByteBuffer buffer);
 
-	public abstract boolean equalsByteBuffer(long pos, ByteBuffer buffer);
+	public int compareBytes(long pos, byte[] data, int offset, int length);
 
-	public abstract int compareBytes(long pos, byte[] data, int offset, int length);
-
-	public abstract int compareByteBuffer(long pos, ByteBuffer buffer);
+	public int compareByteBuffer(long pos, ByteBuffer buffer);
 
 	@Override
 	public abstract int compareTo(FlatBuffer right);
